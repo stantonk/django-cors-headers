@@ -9,6 +9,7 @@ except ImportError:
 from corsheaders import defaults as settings
 from django.db.models.loading import get_model
 
+from corsheaders.util import timeit
 
 ACCESS_CONTROL_ALLOW_ORIGIN = 'Access-Control-Allow-Origin'
 ACCESS_CONTROL_EXPOSE_HEADERS = 'Access-Control-Expose-Headers'
@@ -20,6 +21,7 @@ ACCESS_CONTROL_MAX_AGE = 'Access-Control-Max-Age'
 
 class CorsMiddleware(object):
 
+    @timeit
     def process_request(self, request):
         """
         If CORS preflight header, then create an
@@ -36,6 +38,7 @@ class CorsMiddleware(object):
             return response
         return None
 
+    @timeit
     def process_response(self, request, response):
         """
         Add the respective CORS headers
@@ -75,14 +78,17 @@ class CorsMiddleware(object):
 
         return response
 
+    @timeit
     def origin_not_found_in_white_lists(self, origin, url):
         return (url.netloc not in settings.CORS_ORIGIN_WHITELIST and
                 not self.regex_domain_match(origin))
 
+    @timeit
     def regex_domain_match(self, origin):
         for domain_pattern in settings.CORS_ORIGIN_REGEX_WHITELIST:
             if re.match(domain_pattern, origin):
                 return origin
 
+    @timeit
     def is_enabled(self, request):
         return re.match(settings.CORS_URLS_REGEX, request.path)
